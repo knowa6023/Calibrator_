@@ -1,0 +1,8 @@
+mcu_communication.c:36:12:_parse_set_laser	32	static
+mcu_communication.c:53:12:_parse_time_led	32	static
+mcu_communication.c:70:12:MCU_HandleByte	16	static
+mcu_communication.c:74:12:find_cmd	24	static
+mcu_communication.c:93:12:find_int	40	static
+mcu_communication.c:117:19:_process_char	24	static
+mcu_communication.c:179:12:CAMCMD_Init	16	static
+mcu_communication.c:187:6:CAMCMD_ProcessMessages	8	static
