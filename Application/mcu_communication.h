@@ -28,8 +28,11 @@ typedef enum CMD_Type{
 
 typedef struct CAMARG_Laser{
 	uint16_t Laser[1];
-
 }CAMARG_Laser;
+
+typedef struct CAMARG_Int32{
+	int32_t par_int32;
+}CAMARG_Int32;
 
 typedef struct CAMARG_ValueParametr{
 	uint16_t ValueParametr[1];
@@ -52,6 +55,7 @@ typedef struct{
 		//CAMARG_Motor motor;
 		CAMARG_Laser laser;
 		CAMARG_ValueParametr parametr;
+		CAMARG_Int32 parameter32;
 	};
 }CAMARG;
 
@@ -59,7 +63,7 @@ typedef struct CAMCMD{
 	CMD_Type type;
 	uint8_t cnt;
 	const char *cmd;
-	int (*parse_arg)( unsigned char c, CAMARG *arg );
+	int32_t (*parse_arg)( unsigned char c, CAMARG *arg );
 }CAMCMD;
 
 typedef struct{

@@ -12,9 +12,12 @@
 
 static int find_cmd( unsigned char c, CAMCMD *cmd );
 static int find_int( unsigned char c, unsigned char *buf, uint8_t *cnt, int *val );
+static int find_int32( unsigned char c, unsigned char *buf, uint8_t *cnt, int32_t *val );
 static MCU_Status _process_char( CAM_COM *cam, unsigned char c );
 static int _parse_set_laser( unsigned char c, CAMARG *arg );
 static int _parse_time_led(unsigned char c, CAMARG *arg);
+static int _parse_parameter_int32(unsigned char c, CAMARG *arg);
+
 
 
 CMD_HANDL_CALLBACK handle_cmd = 0;
@@ -28,7 +31,7 @@ CAM_COM comm = {
 			{ .type = CMD_END, 				.cnt = 0, 			.cmd = "<END>",				.parse_arg = 0 },
 			{ .type = CMD_GET_STAT, 		.cnt = 0, 			.cmd = "GET_STAT", 			.parse_arg = 0 },
 			{ .type = CMD_STOP_MOTOR,		.cnt = 0, 			.cmd = "STOP_MOTOR", 		.parse_arg = 0 },
-			{ .type = CMD_SET_STEP, 		.cnt = 0, 		 	.cmd = "SET_STEP:", 		.parse_arg = _parse_set_laser },
+			{ .type = CMD_SET_STEP, 		.cnt = 0, 		 	.cmd = "SET_STEP:", 		.parse_arg = _parse_parameter_int32},
 			{ .type = CMD_SET_STEP_, 		.cnt = 0, 		  	.cmd = "SET_STEP_:", 		.parse_arg = _parse_time_led }
 		}
 };
@@ -39,6 +42,22 @@ static int _parse_set_laser( unsigned char c, CAMARG *arg ){
 	int res= find_int(c,arg->buf,&arg->cnt,&val);
 	if (res>0){
 		arg->laser.Laser[0]=val;
+		arg->argCnt++;
+	}
+	else if(res<0){
+		return -1;
+	}
+	if (arg->argCnt>=1){
+		return 1;
+	}
+	return 0;
+}
+static int _parse_parameter_int32( unsigned char c, CAMARG *arg ){
+
+	static int32_t val;
+	int32_t res= find_int32(c,arg->buf,&arg->cnt,&val);
+	if (res>0){
+		arg->parameter32.par_int32=val;
 		arg->argCnt++;
 	}
 	else if(res<0){
@@ -91,6 +110,30 @@ static int find_cmd( unsigned char c, CAMCMD *cmd ){
 }
 
 static int find_int( unsigned char c, unsigned char *buf, uint8_t *cnt, int *val ){
+	if ( *cnt >= MAX_STRING_BUF ){
+		*cnt = 0;
+	}
+
+	if( (( c >= '0' ) && ( c <= '9' )) || ( c == '-' ) ){
+		buf[*cnt] = c;
+		*cnt += 1;
+	}else if ((c == ',') || (c == 0) || (c == ' ') || ( c == '<')){
+		uint8_t res = 0;
+
+		if ( sscanf(buf,"%d",val) > 0 ){
+			res = 1;
+		}
+		memset( buf, 0, MAX_STRING_BUF );
+		*cnt = 0;
+		return res;
+	}else{
+		return -1;
+	}
+
+	return 0;
+}
+
+static int find_int32( unsigned char c, unsigned char *buf, uint8_t *cnt, int32_t *val ){
 	if ( *cnt >= MAX_STRING_BUF ){
 		*cnt = 0;
 	}
