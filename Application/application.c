@@ -62,7 +62,7 @@ void ledTimer_Callback(void)
 {
 	HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 }
-
+//
 static void camera_cmd_callback(CMD_Type cmd, const CAMARG *args ){
 
 	switch(cmd){
